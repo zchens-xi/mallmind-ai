@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.macro.mall.service.dao.OmsOrderItemDao">
+    <resultMap id="BaseResultMap" type="com.macro.mall.model.OmsOrderItem">
+        <id column="id" property="id" jdbcType="BIGINT"/>
+        <result column="order_id" property="orderId" jdbcType="BIGINT"/>
+        <result column="order_sn" property="orderSn" jdbcType="VARCHAR"/>
+        <result column="product_id" property="productId" jdbcType="BIGINT"/>
+        <result column="product_name" property="productName" jdbcType="VARCHAR"/>
+        <result column="product_brand" property="productBrand" jdbcType="VARCHAR"/>
+        <result column="product_price" property="productPrice" jdbcType="DECIMAL"/>
+        <result column="product_quantity" property="productQuantity" jdbcType="INTEGER"/>
+        <result column="product_sku_id" property="productSkuId" jdbcType="BIGINT"/>
+        <result column="product_sku_code" property="productSkuCode" jdbcType="VARCHAR"/>
+        <result column="product_pic" property="productPic" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <select id="listAll" resultMap="BaseResultMap">
+        SELECT * FROM oms_order_item
+    </select>
+
+    <select id="listByOrderId" resultMap="BaseResultMap">
+        SELECT * FROM oms_order_item
+        WHERE order_id = #{orderId}
+    </select>
+
+    <select id="getById" resultMap="BaseResultMap">
+        SELECT * FROM oms_order_item WHERE id = #{id}
+    </select>
+
+    <insert id="insert" parameterType="com.macro.mall.model.OmsOrderItem">
+        INSERT INTO oms_order_item
+        (order_id, order_sn, product_id, product_name,
+         product_brand, product_price, product_quantity,
+         product_sku_id, product_sku_code, product_pic)
+        VALUES
+            (#{orderId}, #{orderSn}, #{productId}, #{productName},
+             #{productBrand}, #{productPrice}, #{productQuantity},
+             #{productSkuId}, #{productSkuCode}, #{productPic})
+    </insert>
+
+    <update id="update" parameterType="com.macro.mall.model.OmsOrderItem">
+        UPDATE oms_order_item
+        SET order_id = #{orderId},
+            product_id = #{productId},
+            product_name = #{productName},
+            product_brand = #{productBrand},
+            product_price = #{productPrice},
+            product_quantity = #{productQuantity},
+            product_sku_id = #{productSkuId},
+            product_sku_code = #{productSkuCode},
+            product_pic = #{productPic}
+        WHERE id = #{id}
+    </update>
+
+    <delete id="delete" parameterType="java.lang.Long">
+        DELETE FROM oms_order_item WHERE id = #{id}
+    </delete>
+</mapper>

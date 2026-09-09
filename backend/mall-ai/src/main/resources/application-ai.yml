@@ -1,0 +1,31 @@
+# 推荐算法微服务配置
+mall:
+  ai:
+    service:
+      url: http://localhost:8000  # Python FastAPI服务地址
+      timeout: 5000  # 超时时间（毫秒）
+
+# OpenFeign配置
+feign:
+  client:
+    config:
+      mall-ai-recommendation:
+        connectTimeout: 3000  # 连接超时（毫秒）
+        readTimeout: 5000     # 读取超时（毫秒）
+        loggerLevel: basic    # 日志级别
+  hystrix:
+    enabled: true  # 启用熔断器
+
+# Hystrix配置
+hystrix:
+  command:
+    default:
+      execution:
+        isolation:
+          thread:
+            timeoutInMilliseconds: 10000  # 熔断超时时间
+
+# 日志配置
+logging:
+  level:
+    com.macro.mall.recommendation.client: DEBUG  # OpenFeign客户端日志级别

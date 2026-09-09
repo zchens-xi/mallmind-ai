@@ -1,0 +1,287 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.macro.mall.mapper.CsQuickReplyMapper">
+  <resultMap id="BaseResultMap" type="com.macro.mall.model.CsQuickReply">
+    <id column="id" jdbcType="BIGINT" property="id" />
+    <result column="category" jdbcType="VARCHAR" property="category" />
+    <result column="title" jdbcType="VARCHAR" property="title" />
+    <result column="scope" jdbcType="INTEGER" property="scope" />
+    <result column="admin_id" jdbcType="BIGINT" property="adminId" />
+    <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+  </resultMap>
+  <resultMap extends="BaseResultMap" id="ResultMapWithBLOBs" type="com.macro.mall.model.CsQuickReply">
+    <result column="content" jdbcType="LONGVARCHAR" property="content" />
+  </resultMap>
+  <sql id="Example_Where_Clause">
+    <where>
+      <foreach collection="oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Update_By_Example_Where_Clause">
+    <where>
+      <foreach collection="example.oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List">
+    id, category, title, scope, admin_id, create_time
+  </sql>
+  <sql id="Blob_Column_List">
+    content
+  </sql>
+  <select id="selectByExampleWithBLOBs" parameterType="com.macro.mall.model.CsQuickReplyExample" resultMap="ResultMapWithBLOBs">
+    select
+    <if test="distinct">
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    ,
+    <include refid="Blob_Column_List" />
+    from cs_quick_reply
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null">
+      order by ${orderByClause}
+    </if>
+  </select>
+  <select id="selectByExample" parameterType="com.macro.mall.model.CsQuickReplyExample" resultMap="BaseResultMap">
+    select
+    <if test="distinct">
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    from cs_quick_reply
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null">
+      order by ${orderByClause}
+    </if>
+  </select>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="ResultMapWithBLOBs">
+    select 
+    <include refid="Base_Column_List" />
+    ,
+    <include refid="Blob_Column_List" />
+    from cs_quick_reply
+    where id = #{id,jdbcType=BIGINT}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+    delete from cs_quick_reply
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+  <delete id="deleteByExample" parameterType="com.macro.mall.model.CsQuickReplyExample">
+    delete from cs_quick_reply
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </delete>
+  <insert id="insert" parameterType="com.macro.mall.model.CsQuickReply">
+    <selectKey keyProperty="id" order="AFTER" resultType="java.lang.Long">
+      SELECT LAST_INSERT_ID()
+    </selectKey>
+    insert into cs_quick_reply (category, title, scope, 
+      admin_id, create_time, content
+      )
+    values (#{category,jdbcType=VARCHAR}, #{title,jdbcType=VARCHAR}, #{scope,jdbcType=INTEGER}, 
+      #{adminId,jdbcType=BIGINT}, #{createTime,jdbcType=TIMESTAMP}, #{content,jdbcType=LONGVARCHAR}
+      )
+  </insert>
+  <insert id="insertSelective" parameterType="com.macro.mall.model.CsQuickReply">
+    <selectKey keyProperty="id" order="AFTER" resultType="java.lang.Long">
+      SELECT LAST_INSERT_ID()
+    </selectKey>
+    insert into cs_quick_reply
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="category != null">
+        category,
+      </if>
+      <if test="title != null">
+        title,
+      </if>
+      <if test="scope != null">
+        scope,
+      </if>
+      <if test="adminId != null">
+        admin_id,
+      </if>
+      <if test="createTime != null">
+        create_time,
+      </if>
+      <if test="content != null">
+        content,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="category != null">
+        #{category,jdbcType=VARCHAR},
+      </if>
+      <if test="title != null">
+        #{title,jdbcType=VARCHAR},
+      </if>
+      <if test="scope != null">
+        #{scope,jdbcType=INTEGER},
+      </if>
+      <if test="adminId != null">
+        #{adminId,jdbcType=BIGINT},
+      </if>
+      <if test="createTime != null">
+        #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="content != null">
+        #{content,jdbcType=LONGVARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <select id="countByExample" parameterType="com.macro.mall.model.CsQuickReplyExample" resultType="java.lang.Long">
+    select count(*) from cs_quick_reply
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </select>
+  <update id="updateByExampleSelective" parameterType="map">
+    update cs_quick_reply
+    <set>
+      <if test="row.id != null">
+        id = #{row.id,jdbcType=BIGINT},
+      </if>
+      <if test="row.category != null">
+        category = #{row.category,jdbcType=VARCHAR},
+      </if>
+      <if test="row.title != null">
+        title = #{row.title,jdbcType=VARCHAR},
+      </if>
+      <if test="row.scope != null">
+        scope = #{row.scope,jdbcType=INTEGER},
+      </if>
+      <if test="row.adminId != null">
+        admin_id = #{row.adminId,jdbcType=BIGINT},
+      </if>
+      <if test="row.createTime != null">
+        create_time = #{row.createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="row.content != null">
+        content = #{row.content,jdbcType=LONGVARCHAR},
+      </if>
+    </set>
+    <if test="example != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExampleWithBLOBs" parameterType="map">
+    update cs_quick_reply
+    set id = #{row.id,jdbcType=BIGINT},
+      category = #{row.category,jdbcType=VARCHAR},
+      title = #{row.title,jdbcType=VARCHAR},
+      scope = #{row.scope,jdbcType=INTEGER},
+      admin_id = #{row.adminId,jdbcType=BIGINT},
+      create_time = #{row.createTime,jdbcType=TIMESTAMP},
+      content = #{row.content,jdbcType=LONGVARCHAR}
+    <if test="example != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExample" parameterType="map">
+    update cs_quick_reply
+    set id = #{row.id,jdbcType=BIGINT},
+      category = #{row.category,jdbcType=VARCHAR},
+      title = #{row.title,jdbcType=VARCHAR},
+      scope = #{row.scope,jdbcType=INTEGER},
+      admin_id = #{row.adminId,jdbcType=BIGINT},
+      create_time = #{row.createTime,jdbcType=TIMESTAMP}
+    <if test="example != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByPrimaryKeySelective" parameterType="com.macro.mall.model.CsQuickReply">
+    update cs_quick_reply
+    <set>
+      <if test="category != null">
+        category = #{category,jdbcType=VARCHAR},
+      </if>
+      <if test="title != null">
+        title = #{title,jdbcType=VARCHAR},
+      </if>
+      <if test="scope != null">
+        scope = #{scope,jdbcType=INTEGER},
+      </if>
+      <if test="adminId != null">
+        admin_id = #{adminId,jdbcType=BIGINT},
+      </if>
+      <if test="createTime != null">
+        create_time = #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="content != null">
+        content = #{content,jdbcType=LONGVARCHAR},
+      </if>
+    </set>
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKeyWithBLOBs" parameterType="com.macro.mall.model.CsQuickReply">
+    update cs_quick_reply
+    set category = #{category,jdbcType=VARCHAR},
+      title = #{title,jdbcType=VARCHAR},
+      scope = #{scope,jdbcType=INTEGER},
+      admin_id = #{adminId,jdbcType=BIGINT},
+      create_time = #{createTime,jdbcType=TIMESTAMP},
+      content = #{content,jdbcType=LONGVARCHAR}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.macro.mall.model.CsQuickReply">
+    update cs_quick_reply
+    set category = #{category,jdbcType=VARCHAR},
+      title = #{title,jdbcType=VARCHAR},
+      scope = #{scope,jdbcType=INTEGER},
+      admin_id = #{adminId,jdbcType=BIGINT},
+      create_time = #{createTime,jdbcType=TIMESTAMP}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+</mapper>

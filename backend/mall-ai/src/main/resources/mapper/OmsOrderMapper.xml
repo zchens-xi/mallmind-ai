@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.macro.mall.service.dao.OmsOrderDao">
+    <resultMap id="BaseResultMap" type="com.macro.mall.model.OmsOrder">
+        <id column="id" property="id" jdbcType="BIGINT"/>
+        <result column="member_id" property="memberId" jdbcType="BIGINT"/>
+        <result column="order_sn" property="orderSn" jdbcType="VARCHAR"/>
+        <result column="create_time" property="createTime" jdbcType="TIMESTAMP"/>
+        <result column="member_username" property="memberUsername" jdbcType="VARCHAR"/>
+        <result column="total_amount" property="totalAmount" jdbcType="DECIMAL"/>
+        <result column="pay_amount" property="payAmount" jdbcType="DECIMAL"/>
+        <result column="freight_amount" property="freightAmount" jdbcType="DECIMAL"/>
+        <result column="pay_type" property="payType" jdbcType="INTEGER"/>
+        <result column="status" property="status" jdbcType="INTEGER"/>
+        <result column="delivery_company" property="deliveryCompany" jdbcType="VARCHAR"/>
+        <result column="delivery_sn" property="deliverySn" jdbcType="VARCHAR"/>
+        <result column="auto_confirm_day" property="autoConfirmDay" jdbcType="INTEGER"/>
+    </resultMap>
+
+    <select id="list" resultMap="BaseResultMap">
+        SELECT * FROM oms_order
+        <where>
+            <if test="queryParam.memberId != null">
+                AND member_id = #{queryParam.memberId}
+            </if>
+            <if test="queryParam.status != null">
+                AND status = #{queryParam.status}
+            </if>
+            <if test="queryParam.createTime != null">
+                AND create_time >= #{queryParam.createTime}
+            </if>
+        </where>
+        ORDER BY create_time DESC
+    </select>
+
+    <select id="listAll" resultMap="BaseResultMap">
+        SELECT * FROM oms_order
+    </select>
+
+    <select id="getById" resultMap="BaseResultMap">
+        SELECT * FROM oms_order WHERE id = #{id}
+    </select>
+
+    <insert id="insert" parameterType="com.macro.mall.model.OmsOrder">
+        INSERT INTO oms_order
+        (member_id, order_sn, create_time, member_username,
+         total_amount, pay_amount, freight_amount, pay_type,
+         status, delivery_company, delivery_sn, auto_confirm_day)
+        VALUES
+            (#{memberId}, #{orderSn}, #{createTime}, #{memberUsername},
+             #{totalAmount}, #{payAmount}, #{freightAmount}, #{payType},
+             #{status}, #{deliveryCompany}, #{deliverySn}, #{autoConfirmDay})
+    </insert>
+
+    <update id="update" parameterType="com.macro.mall.model.OmsOrder">
+        UPDATE oms_order
+        SET member_id = #{memberId},
+            order_sn = #{orderSn},
+            total_amount = #{totalAmount},
+            pay_amount = #{payAmount},
+            freight_amount = #{freightAmount},
+            pay_type = #{payType},
+            status = #{status},
+            delivery_company = #{deliveryCompany},
+            delivery_sn = #{deliverySn},
+            auto_confirm_day = #{autoConfirmDay}
+        WHERE id = #{id}
+    </update>
+
+    <delete id="delete" parameterType="java.lang.Long">
+        DELETE FROM oms_order WHERE id = #{id}
+    </delete>
+</mapper>

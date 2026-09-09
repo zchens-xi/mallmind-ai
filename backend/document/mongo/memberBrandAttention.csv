@@ -1,0 +1,4 @@
+"_id","_class","brandId","brandLogo","brandName","createTime","memberIcon","memberId","memberNickname"
+"68785124c26f0b6d4bc7420c","com.macro.mall.portal.domain.MemberBrandAttention","6","http://macro-oss.oss-cn-shenzhen.aliyuncs.com/mall/images/20200607/5565f5a2N0b8169ae.jpg","小米","17/7/2025 01:25:56.23","https://macro-oss.oss-cn-shenzhen.aliyuncs.com/mall/icon/github_icon_03.png","1","test"
+"68785131c26f0b6d4bc7420e","com.macro.mall.portal.domain.MemberBrandAttention","58","http://macro-oss.oss-cn-shenzhen.aliyuncs.com/mall/images/20180615/timg (51).jpg","NIKE","17/7/2025 01:26:09.455","https://macro-oss.oss-cn-shenzhen.aliyuncs.com/mall/icon/github_icon_03.png","1","test"
+"6878513ac26f0b6d4bc74210","com.macro.mall.portal.domain.MemberBrandAttention","2","http://macro-oss.oss-cn-shenzhen.aliyuncs.com/mall/images/20200607/57201b47N7bf15715.jpg","三星","17/7/2025 01:26:18.599","https://macro-oss.oss-cn-shenzhen.aliyuncs.com/mall/icon/github_icon_03.png","1","test"

@@ -1,0 +1,547 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.macro.mall.dao.AnalyticsDao">
+
+    <!-- 获取销售额数据 -->
+    <select id="getSalesData" resultType="java.util.Map">
+        SELECT
+            <choose>
+                <when test="type == 'day'">
+                    DATE(create_time) as date,
+                    COALESCE(SUM(total_amount), 0) as value
+                </when>
+                <when test="type == 'week'">
+                    DATE_FORMAT(create_time, '%Y-%u') as date,
+                    COALESCE(SUM(total_amount), 0) as value
+                </when>
+                <when test="type == 'month'">
+                    DATE_FORMAT(create_time, '%Y-%m') as date,
+                    COALESCE(SUM(total_amount), 0) as value
+                </when>
+                <otherwise>
+                    DATE(create_time) as date,
+                    COALESCE(SUM(total_amount), 0) as value
+                </otherwise>
+            </choose>
+        FROM oms_order
+        WHERE status != 4
+            AND create_time BETWEEN #{startDate} AND #{endDate}
+        GROUP BY
+            <choose>
+                <when test="type == 'day'">
+                    DATE(create_time)
+                </when>
+                <when test="type == 'week'">
+                    DATE_FORMAT(create_time, '%Y-%u')
+                </when>
+                <when test="type == 'month'">
+                    DATE_FORMAT(create_time, '%Y-%m')
+                </when>
+                <otherwise>
+                    DATE(create_time)
+                </otherwise>
+            </choose>
+        ORDER BY date
+    </select>
+
+    <!-- 获取订单数量数据 -->
+    <select id="getOrderCountData" resultType="java.util.Map">
+        SELECT
+            <choose>
+                <when test="type == 'day'">
+                    DATE(create_time) as date,
+                    COUNT(*) as value
+                </when>
+                <when test="type == 'week'">
+                    DATE_FORMAT(create_time, '%Y-%u') as date,
+                    COUNT(*) as value
+                </when>
+                <when test="type == 'month'">
+                    DATE_FORMAT(create_time, '%Y-%m') as date,
+                    COUNT(*) as value
+                </when>
+                <otherwise>
+                    DATE(create_time) as date,
+                    COUNT(*) as value
+                </otherwise>
+            </choose>
+        FROM oms_order
+        WHERE status != 4
+            AND create_time BETWEEN #{startDate} AND #{endDate}
+        GROUP BY
+            <choose>
+                <when test="type == 'day'">
+                    DATE(create_time)
+                </when>
+                <when test="type == 'week'">
+                    DATE_FORMAT(create_time, '%Y-%u')
+                </when>
+                <when test="type == 'month'">
+                    DATE_FORMAT(create_time, '%Y-%m')
+                </when>
+                <otherwise>
+                    DATE(create_time)
+                </otherwise>
+            </choose>
+        ORDER BY date
+    </select>
+
+    <!-- 获取销售总额 -->
+    <select id="getTotalSales" resultType="java.math.BigDecimal">
+        SELECT COALESCE(SUM(total_amount), 0)
+        FROM oms_order
+        WHERE status != 4
+            AND create_time BETWEEN #{startDate} AND #{endDate}
+    </select>
+
+    <!-- 获取订单总数 -->
+    <select id="getTotalOrderCount" resultType="java.lang.Long">
+        SELECT COUNT(*)
+        FROM oms_order
+        WHERE status != 4
+            AND create_time BETWEEN #{startDate} AND #{endDate}
+    </select>
+
+    <!-- 获取退款金额 -->
+    <select id="getRefundAmount" resultType="java.math.BigDecimal">
+        SELECT COALESCE(SUM(return_amount), 0)
+        FROM oms_order_return_apply
+        WHERE status = 2
+            AND create_time BETWEEN #{startDate} AND #{endDate}
+    </select>
+
+    <!-- 获取退款订单数 -->
+    <select id="getRefundOrderCount" resultType="java.lang.Long">
+        SELECT COUNT(*)
+        FROM oms_order_return_apply
+        WHERE status = 2
+            AND create_time BETWEEN #{startDate} AND #{endDate}
+    </select>
+
+    <!-- 获取销售渠道分布 -->
+    <select id="getSalesChannelDistribution" resultType="java.util.Map">
+        SELECT
+            CASE
+                WHEN source_type = 0 THEN 'pc'
+                WHEN source_type = 1 THEN 'app'
+                WHEN source_type = 2 THEN 'wechat'
+                ELSE 'others'
+            END as channel,
+            COALESCE(SUM(total_amount), 0) as amount
+        FROM oms_order
+        WHERE status != 4
+            AND create_time BETWEEN #{startDate} AND #{endDate}
+        GROUP BY source_type
+    </select>
+
+    <!-- 获取用户地域分布 -->
+    <select id="getUserRegionDistribution" resultType="java.util.Map">
+        SELECT
+            COALESCE(o.receiver_province, '未知') as region,
+            COALESCE(SUM(o.total_amount), 0) as amount
+        FROM oms_order o
+        WHERE o.status != 4
+            AND o.create_time BETWEEN #{startDate} AND #{endDate}
+        GROUP BY o.receiver_province
+        ORDER BY amount DESC
+        LIMIT 10
+    </select>
+
+    <!-- 获取支付方式分布 -->
+    <select id="getPaymentDistribution" resultType="java.util.Map">
+        SELECT
+            CASE
+                WHEN pay_type = 1 THEN '支付宝'
+                WHEN pay_type = 2 THEN '微信支付'
+                WHEN pay_type = 3 THEN '银行卡'
+                ELSE '其他'
+            END as name,
+            COUNT(*) as value
+        FROM oms_order
+        WHERE status != 4
+            AND pay_type IS NOT NULL
+            AND pay_type != 0
+            AND create_time BETWEEN #{startDate} AND #{endDate}
+        GROUP BY pay_type
+        ORDER BY value DESC
+    </select>
+
+    <!-- 获取订单状态分布 -->
+    <select id="getOrderStatusDistribution" resultType="java.util.Map">
+        SELECT
+            CASE
+                WHEN status = 0 THEN '待发货'
+                WHEN status = 1 THEN '待发货'
+                WHEN status = 2 THEN '运输中'
+                WHEN status = 3 THEN '已完成'
+                WHEN status = 4 THEN '已取消'
+                WHEN status = 5 THEN '退款中'
+                ELSE '其他'
+            END as name,
+            COUNT(*) as value
+        FROM oms_order
+        WHERE create_time BETWEEN #{startDate} AND #{endDate}
+        GROUP BY
+            CASE
+                WHEN status = 0 THEN '待发货'
+                WHEN status = 1 THEN '待发货'
+                WHEN status = 2 THEN '运输中'
+                WHEN status = 3 THEN '已完成'
+                WHEN status = 4 THEN '已取消'
+                WHEN status = 5 THEN '退款中'
+                ELSE '其他'
+            END
+    </select>
+
+    <!-- 获取去年同期销售总额 -->
+    <select id="getLastYearTotalSales" resultType="java.math.BigDecimal">
+        SELECT COALESCE(SUM(total_amount), 0)
+        FROM oms_order
+        WHERE status != 4
+            AND create_time BETWEEN DATE_SUB(#{startDate}, INTERVAL 1 YEAR)
+            AND DATE_SUB(#{endDate}, INTERVAL 1 YEAR)
+    </select>
+
+    <!-- 获取去年同期订单总数 -->
+    <select id="getLastYearTotalOrderCount" resultType="java.lang.Long">
+        SELECT COUNT(*)
+        FROM oms_order
+        WHERE status != 4
+            AND create_time BETWEEN DATE_SUB(#{startDate}, INTERVAL 1 YEAR)
+            AND DATE_SUB(#{endDate}, INTERVAL 1 YEAR)
+    </select>
+
+    <!-- ============== 用户画像相关查询 ============== -->
+
+    <!-- 获取用户总数 -->
+    <select id="getTotalUserCount" resultType="java.lang.Long">
+        SELECT COUNT(*)
+        FROM ums_member
+        WHERE create_time &lt;= #{endDate}
+    </select>
+
+    <!-- 获取有画像信息的用户数 -->
+    <select id="getAnalyzedUserCount" resultType="java.lang.Long">
+        SELECT COUNT(*)
+        FROM ums_member
+        WHERE create_time &lt;= #{endDate}
+            AND (gender IS NOT NULL OR birthday IS NOT NULL OR city IS NOT NULL OR job IS NOT NULL)
+    </select>
+
+    <!-- 获取用户性别分布 -->
+    <select id="getUserGenderDistribution" resultType="java.util.Map">
+        SELECT
+            CASE
+                WHEN gender = 1 THEN '男'
+                WHEN gender = 2 THEN '女'
+                ELSE '未知'
+            END as gender,
+            COUNT(*) as count
+        FROM ums_member
+        WHERE create_time &lt;= #{endDate}
+        GROUP BY gender
+    </select>
+
+    <!-- 获取用户年龄分布 -->
+    <select id="getUserAgeDistribution" resultType="java.util.Map">
+        SELECT
+            CASE
+                WHEN TIMESTAMPDIFF(YEAR, birthday, CURDATE()) BETWEEN 18 AND 25 THEN '18-25岁'
+                WHEN TIMESTAMPDIFF(YEAR, birthday, CURDATE()) BETWEEN 26 AND 35 THEN '26-35岁'
+                WHEN TIMESTAMPDIFF(YEAR, birthday, CURDATE()) BETWEEN 36 AND 45 THEN '36-45岁'
+                WHEN TIMESTAMPDIFF(YEAR, birthday, CURDATE()) BETWEEN 46 AND 55 THEN '46-55岁'
+                WHEN TIMESTAMPDIFF(YEAR, birthday, CURDATE()) > 55 THEN '55岁以上'
+                ELSE '未知'
+            END as ageRange,
+            COUNT(*) as count
+        FROM ums_member
+        WHERE create_time &lt;= #{endDate}
+            AND birthday IS NOT NULL
+        GROUP BY
+            CASE
+                WHEN TIMESTAMPDIFF(YEAR, birthday, CURDATE()) BETWEEN 18 AND 25 THEN '18-25岁'
+                WHEN TIMESTAMPDIFF(YEAR, birthday, CURDATE()) BETWEEN 26 AND 35 THEN '26-35岁'
+                WHEN TIMESTAMPDIFF(YEAR, birthday, CURDATE()) BETWEEN 36 AND 45 THEN '36-45岁'
+                WHEN TIMESTAMPDIFF(YEAR, birthday, CURDATE()) BETWEEN 46 AND 55 THEN '46-55岁'
+                WHEN TIMESTAMPDIFF(YEAR, birthday, CURDATE()) > 55 THEN '55岁以上'
+                ELSE '未知'
+            END
+        ORDER BY count DESC
+    </select>
+
+    <!-- 获取用户职业分布 -->
+    <select id="getUserOccupationDistribution" resultType="java.util.Map">
+        SELECT
+            COALESCE(job, '未知') as occupation,
+            COUNT(*) as count
+        FROM ums_member
+        WHERE create_time &lt;= #{endDate}
+        GROUP BY job
+        ORDER BY count DESC
+    </select>
+
+    <!-- 获取用户城市分布 -->
+    <select id="getUserCityDistribution" resultType="java.util.Map">
+        SELECT
+            COALESCE(city, '未知') as region,
+            COUNT(*) as count
+        FROM ums_member
+        WHERE create_time &lt;= #{endDate}
+        GROUP BY city
+        ORDER BY count DESC
+        LIMIT 20
+    </select>
+
+    <!-- 获取用户消费能力分布 -->
+    <select id="getUserConsumptionLevelDistribution" resultType="java.util.Map">
+        SELECT
+            consumption_level as level,
+            COUNT(DISTINCT member_id) as count
+        FROM (
+            SELECT
+                member_id,
+                CASE
+                    WHEN COALESCE(SUM(total_amount), 0) BETWEEN 0 AND 500 THEN '低消费(0-500元)'
+                    WHEN COALESCE(SUM(total_amount), 0) BETWEEN 500 AND 1500 THEN '中低消费(500-1500元)'
+                    WHEN COALESCE(SUM(total_amount), 0) BETWEEN 1500 AND 3000 THEN '中等消费(1500-3000元)'
+                    WHEN COALESCE(SUM(total_amount), 0) BETWEEN 3000 AND 8000 THEN '高消费(3000-8000元)'
+                    WHEN COALESCE(SUM(total_amount), 0) > 8000 THEN '超高消费(8000元以上)'
+                    ELSE '未知消费'
+                END as consumption_level
+            FROM oms_order
+            WHERE status != 4
+                AND create_time BETWEEN #{startDate} AND #{endDate}
+            GROUP BY member_id
+        ) consumption_data
+        GROUP BY consumption_level
+        ORDER BY 
+            CASE consumption_level
+                WHEN '低消费(0-500元)' THEN 1
+                WHEN '中低消费(500-1500元)' THEN 2
+                WHEN '中等消费(1500-3000元)' THEN 3
+                WHEN '高消费(3000-8000元)' THEN 4
+                WHEN '超高消费(8000元以上)' THEN 5
+                ELSE 6
+            END
+    </select>
+
+    <!-- 获取用户兴趣标签（基于商品类别） -->
+    <select id="getUserInterestTags" resultType="java.util.Map">
+        SELECT
+            pc.name as tag,
+            COUNT(DISTINCT oo.member_id) as count
+        FROM oms_order oo
+        JOIN oms_order_item ooi ON oo.id = ooi.order_id
+        JOIN pms_product pp ON ooi.product_id = pp.id
+        JOIN pms_product_category pc ON pp.product_category_id = pc.id
+        WHERE oo.status != 4
+            AND oo.create_time BETWEEN #{startDate} AND #{endDate}
+        GROUP BY pc.name
+        ORDER BY count DESC
+        LIMIT 20
+    </select>
+
+    <!-- 获取用户消费偏好（按商品类别） -->
+    <select id="getUserConsumptionPreferences" resultType="java.util.Map">
+        SELECT
+            pc.name as category,
+            COALESCE(SUM(ooi.real_amount), 0) as amount
+        FROM oms_order oo
+        JOIN oms_order_item ooi ON oo.id = ooi.order_id
+        JOIN pms_product pp ON ooi.product_id = pp.id
+        JOIN pms_product_category pc ON pp.product_category_id = pc.id
+        WHERE oo.status != 4
+            AND oo.create_time BETWEEN #{startDate} AND #{endDate}
+        GROUP BY pc.name
+        ORDER BY amount DESC
+        LIMIT 10
+    </select>
+
+    <!-- 获取用户设备分布 -->
+    <select id="getUserDeviceDistribution" resultType="java.util.Map">
+        SELECT
+            device_type as device,
+            COUNT(DISTINCT member_id) as count
+        FROM (
+            SELECT
+                CASE
+                    WHEN login_type = 0 THEN 'PC端'
+                    WHEN login_type = 1 THEN '移动端'
+                    WHEN login_type = 2 THEN '移动端'
+                    WHEN login_type = 3 THEN '移动端'
+                    ELSE '其他'
+                END as device_type,
+                member_id
+            FROM ums_member_login_log
+            WHERE create_time BETWEEN #{startDate} AND #{endDate}
+        ) device_data
+        GROUP BY device_type
+        ORDER BY count DESC
+    </select>
+
+    <!-- 获取用户活跃时段分布 -->
+    <select id="getUserActiveTimeDistribution" resultType="java.util.Map">
+        SELECT
+            HOUR(create_time) as hour,
+            COUNT(*) as count
+        FROM (
+            SELECT create_time FROM ums_member_login_log WHERE create_time BETWEEN #{startDate} AND #{endDate}
+            UNION ALL
+            SELECT create_time FROM oms_order WHERE create_time BETWEEN #{startDate} AND #{endDate} AND status != 4
+        ) t
+        GROUP BY HOUR(create_time)
+        ORDER BY HOUR(create_time)
+    </select>
+
+    <!-- 获取用户平均客单价 -->
+    <select id="getUserAvgOrderAmount" resultType="java.math.BigDecimal">
+        SELECT COALESCE(AVG(total_amount), 0)
+        FROM oms_order
+        WHERE status != 4
+            AND create_time BETWEEN #{startDate} AND #{endDate}
+    </select>
+
+    <!-- 获取用户人均消费 -->
+    <select id="getUserAvgSpend" resultType="java.math.BigDecimal">
+        SELECT COALESCE(SUM(total_amount) / COUNT(DISTINCT member_id), 0)
+        FROM oms_order
+        WHERE status != 4
+            AND create_time BETWEEN #{startDate} AND #{endDate}
+    </select>
+
+    <!-- 获取复购率统计 -->
+    <select id="getRepurchaseRateStats" resultType="java.util.Map">
+        SELECT
+            COUNT(DISTINCT member_id) as totalUsers,
+            COUNT(DISTINCT CASE WHEN order_count > 1 THEN member_id END) as repurchaseUsers
+        FROM (
+            SELECT
+                member_id,
+                COUNT(*) as order_count
+            FROM oms_order
+            WHERE status != 4
+                AND create_time BETWEEN #{startDate} AND #{endDate}
+            GROUP BY member_id
+        ) t
+    </select>
+
+    <!-- ============== 商品分析相关查询 ============== -->
+
+    <!-- 获取商品总数 -->
+    <select id="getTotalProductCount" resultType="java.lang.Long">
+        SELECT COUNT(*)
+        FROM pms_product
+        WHERE delete_status = 0
+    </select>
+
+    <!-- 获取在售商品数 -->
+    <select id="getOnSaleProductCount" resultType="java.lang.Long">
+        SELECT COUNT(*)
+        FROM pms_product
+        WHERE delete_status = 0 AND publish_status = 1
+    </select>
+
+    <!-- 获取商品总收藏量 - 修正：使用购物车数据替代收藏数据 -->
+    <select id="getTotalProductCollects" resultType="java.lang.Long">
+        SELECT COUNT(*)
+        FROM oms_cart_item
+        WHERE create_date BETWEEN #{startDate} AND #{endDate}
+    </select>
+
+    <!-- 获取商品分类销售占比 -->
+    <select id="getCategorySalesPercent" resultType="java.util.Map">
+        SELECT
+            pc.id as categoryId,
+            pc.name as categoryName,
+            COALESCE(SUM(ooi.real_amount), 0) as salesAmount
+        FROM pms_product_category pc
+        LEFT JOIN pms_product pp ON pc.id = pp.product_category_id
+        LEFT JOIN oms_order_item ooi ON pp.id = ooi.product_id
+        LEFT JOIN oms_order oo ON ooi.order_id = oo.id
+        WHERE oo.status != 4
+            AND oo.create_time BETWEEN #{startDate} AND #{endDate}
+        GROUP BY pc.id, pc.name
+        HAVING salesAmount > 0
+        ORDER BY salesAmount DESC
+        LIMIT 10
+    </select>
+
+    <!-- 获取商品销售排行 -->
+    <select id="getProductSalesRank" resultType="java.util.Map">
+        SELECT
+            pp.id as productId,
+            pp.name as productName,
+            COALESCE(SUM(ooi.real_amount), 0) as salesAmount,
+            COALESCE(SUM(ooi.product_quantity), 0) as salesQuantity
+        FROM pms_product pp
+        JOIN oms_order_item ooi ON pp.id = ooi.product_id
+        JOIN oms_order oo ON ooi.order_id = oo.id
+        WHERE oo.status != 4
+            AND oo.create_time BETWEEN #{startDate} AND #{endDate}
+        GROUP BY pp.id, pp.name
+        ORDER BY salesAmount DESC
+        LIMIT #{limit}
+    </select>
+
+
+    <!-- 获取商品价格区间分布 -->
+    <select id="getProductPriceDistribution" resultType="java.util.Map">
+        SELECT
+            price_range as `range`,
+            COUNT(*) as count
+        FROM (
+            SELECT
+                CASE
+                    WHEN price BETWEEN 0 AND 100 THEN '0-100'
+                    WHEN price BETWEEN 100 AND 500 THEN '100-500'
+                    WHEN price BETWEEN 500 AND 1000 THEN '500-1000'
+                    WHEN price BETWEEN 1000 AND 3000 THEN '1000-3000'
+                    WHEN price > 3000 THEN '3000+'
+                    ELSE '未知'
+                END as price_range
+            FROM pms_product
+            WHERE delete_status = 0 AND price IS NOT NULL
+        ) price_data
+        GROUP BY price_range
+        ORDER BY
+            CASE price_range
+                WHEN '0-100' THEN 1
+                WHEN '100-500' THEN 2
+                WHEN '500-1000' THEN 3
+                WHEN '1000-3000' THEN 4
+                WHEN '3000+' THEN 5
+                ELSE 6
+            END
+    </select>
+
+    <!-- 获取商品库存区间分布 -->
+    <select id="getProductStockDistribution" resultType="java.util.Map">
+        SELECT
+            stock_range as `range`,
+            COUNT(*) as count
+        FROM (
+            SELECT
+                CASE
+                    WHEN stock BETWEEN 0 AND 10 THEN '0-10'
+                    WHEN stock BETWEEN 10 AND 50 THEN '10-50'
+                    WHEN stock BETWEEN 50 AND 100 THEN '50-100'
+                    WHEN stock BETWEEN 100 AND 500 THEN '100-500'
+                    WHEN stock > 500 THEN '500+'
+                    ELSE '未知'
+                END as stock_range
+            FROM pms_product
+            WHERE delete_status = 0 AND stock IS NOT NULL
+        ) stock_data
+        GROUP BY stock_range
+        ORDER BY
+            CASE stock_range
+                WHEN '0-10' THEN 1
+                WHEN '10-50' THEN 2
+                WHEN '50-100' THEN 3
+                WHEN '100-500' THEN 4
+                WHEN '500+' THEN 5
+                ELSE 6
+            END
+    </select>
+
+</mapper>

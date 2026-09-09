@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.macro.mall.dao.ProductAnalyticsDao">
+
+    <!-- 获取商品总数 -->
+    <select id="getTotalProductCount" resultType="java.lang.Long">
+        SELECT COUNT(*) FROM pms_product
+        WHERE delete_status = 0
+    </select>
+
+    <!-- 获取在售商品总数 -->
+    <select id="getOnSaleProductCount" resultType="java.lang.Long">
+        SELECT COUNT(*) FROM pms_product
+        WHERE delete_status = 0 AND publish_status = 1
+    </select>
+
+    <!-- 获取商品分类销售占比 -->
+    <select id="getCategorySalesPercent" resultType="java.util.Map">
+        SELECT
+            pc.id as categoryId,
+            pc.name as categoryName,
+            COALESCE(SUM(oi.product_price * oi.product_quantity), 0) as salesAmount
+        FROM pms_product_category pc
+        LEFT JOIN pms_product p ON pc.id = p.product_category_id
+        LEFT JOIN oms_order_item oi ON p.id = oi.product_id
+        LEFT JOIN oms_order o ON oi.order_id = o.id
+        WHERE o.create_time BETWEEN #{startDate} AND #{endDate}
+        AND o.status IN (2, 3, 4) <!-- 已发货、已完成、已评价 -->
+        GROUP BY pc.id, pc.name
+        HAVING salesAmount > 0
+        ORDER BY salesAmount DESC
+    </select>
+
+    <!-- 获取商品销售排行 -->
+    <select id="getProductSalesRank" resultType="java.util.Map">
+        SELECT
+            p.id as productId,
+            p.name as productName,
+            COALESCE(SUM(oi.product_price * oi.product_quantity), 0) as salesAmount,
+            COALESCE(SUM(oi.product_quantity), 0) as salesQuantity
+        FROM pms_product p
+        LEFT JOIN oms_order_item oi ON p.id = oi.product_id
+        LEFT JOIN oms_order o ON oi.order_id = o.id
+        WHERE o.create_time BETWEEN #{startDate} AND #{endDate}
+        AND o.status IN (2, 3, 4) <!-- 已发货、已完成、已评价 -->
+        GROUP BY p.id, p.name
+        HAVING salesAmount > 0
+        ORDER BY salesAmount DESC
+        LIMIT #{limit}
+    </select>
+
+    <!-- 获取商品价格区间分布 -->
+    <select id="getProductPriceDistribution" resultType="java.util.Map">
+        SELECT
+            CASE
+                WHEN price BETWEEN 0 AND 100 THEN '0-100'
+                WHEN price BETWEEN 100 AND 500 THEN '100-500'
+                WHEN price BETWEEN 500 AND 1000 THEN '500-1000'
+                WHEN price BETWEEN 1000 AND 3000 THEN '1000-3000'
+                WHEN price >= 3000 THEN '3000+'
+                ELSE '其他'
+            END as `range`,
+            COUNT(*) as count
+        FROM pms_product
+        WHERE delete_status = 0
+        GROUP BY
+            CASE
+                WHEN price BETWEEN 0 AND 100 THEN '0-100'
+                WHEN price BETWEEN 100 AND 500 THEN '100-500'
+                WHEN price BETWEEN 500 AND 1000 THEN '500-1000'
+                WHEN price BETWEEN 1000 AND 3000 THEN '1000-3000'
+                WHEN price >= 3000 THEN '3000+'
+                ELSE '其他'
+            END
+        ORDER BY count DESC
+    </select>
+
+    <!-- 获取商品库存分布 -->
+    <select id="getProductStockDistribution" resultType="java.util.Map">
+        SELECT
+            CASE
+                WHEN total_stock BETWEEN 0 AND 10 THEN '0-10'
+                WHEN total_stock BETWEEN 10 AND 50 THEN '10-50'
+                WHEN total_stock BETWEEN 50 AND 100 THEN '50-100'
+                WHEN total_stock BETWEEN 100 AND 500 THEN '100-500'
+                WHEN total_stock >= 500 THEN '500+'
+                ELSE '其他'
+            END as `range`,
+            COUNT(*) as count
+        FROM (
+            SELECT
+                p.id,
+                COALESCE(SUM(ss.stock), 0) as total_stock
+            FROM pms_product p
+            LEFT JOIN pms_sku_stock ss ON p.id = ss.product_id
+            WHERE p.delete_status = 0
+            GROUP BY p.id
+        ) stock_summary
+        GROUP BY
+            CASE
+                WHEN total_stock BETWEEN 0 AND 10 THEN '0-10'
+                WHEN total_stock BETWEEN 10 AND 50 THEN '10-50'
+                WHEN total_stock BETWEEN 50 AND 100 THEN '50-100'
+                WHEN total_stock BETWEEN 100 AND 500 THEN '100-500'
+                WHEN total_stock >= 500 THEN '500+'
+                ELSE '其他'
+            END
+        ORDER BY count DESC
+    </select>
+
+    <!-- 获取商品购买用户数统计 -->
+    <select id="getProductBuyUserStats" resultType="java.util.Map">
+        SELECT
+            oi.product_id as productId,
+            COUNT(DISTINCT o.member_id) as buyUsers
+        FROM oms_order_item oi
+        JOIN oms_order o ON oi.order_id = o.id
+        WHERE o.create_time BETWEEN #{startDate} AND #{endDate}
+        AND o.status IN (2, 3, 4) <!-- 已发货、已完成、已评价 -->
+        AND o.member_id IS NOT NULL
+        GROUP BY oi.product_id
+    </select>
+
+    <!-- 获取购买用户数 -->
+    <select id="getBuyUserCount" resultType="java.lang.Long">
+        SELECT COUNT(DISTINCT o.member_id)
+        FROM oms_order o
+        WHERE o.create_time BETWEEN #{startDate} AND #{endDate}
+        AND o.status IN (2, 3, 4) <!-- 已发货、已完成、已评价 -->
+        AND o.member_id IS NOT NULL
+    </select>
+
+    <!-- 获取加购车数量统计（简化实现，返回固定值） -->
+    <select id="getCartCount" resultType="java.lang.Long">
+        SELECT COALESCE(COUNT(*), 0) as cartCount
+        FROM oms_cart_item ci
+        WHERE ci.create_date BETWEEN #{startDate} AND #{endDate}
+    </select>
+
+    <!-- 注意：以下查询涉及MongoDB数据，需要在Service层通过MongoTemplate实现 -->
+
+    <!-- getTotalViewCount - 通过MongoTemplate实现 -->
+    <!-- getTotalCollectCount - 通过MongoTemplate实现 -->
+    <!-- getViewUserCount - 通过MongoTemplate实现 -->
+    <!-- getProductViewRank - 通过MongoTemplate实现 -->
+    <!-- getProductConversionRank - 需要结合MySQL和MongoDB数据 -->
+    <!-- getProductViewUserStats - 通过MongoTemplate实现 -->
+
+</mapper>

@@ -1,0 +1,24 @@
+# 基于动量的个性化推荐系统依赖包
+
+# 数据处理
+pandas>=1.3.0
+numpy>=1.21.0
+
+# 机器学习
+scikit-learn>=1.0.0
+scipy>=1.7.0
+
+# MongoDB数据库
+pymongo>=4.0.0
+
+# FastAPI微服务框架
+fastapi>=0.68.0
+uvicorn>=0.15.0
+pydantic>=1.8.0
+
+# 日志和类型检查
+logging>=0.4.9.6
+typing-extensions>=4.0.0
+
+# 其他工具
+python-dateutil>=2.8.0

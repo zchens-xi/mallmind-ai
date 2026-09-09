@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.macro.mall.dao.HomeDao">
+    
+    <!-- 获取今日销售额 -->
+    <select id="getTodaySales" resultType="java.lang.Double">
+        SELECT IFNULL(SUM(pay_amount), 0)
+        FROM oms_order
+        WHERE DATE(create_time) = DATE(#{today})
+        AND delete_status = 0
+        AND status IN (1, 2, 3) <!-- 已支付的订单 -->
+    </select>
+    
+    <!-- 获取昨日销售额 -->
+    <select id="getYesterdaySales" resultType="java.lang.Double">
+        SELECT IFNULL(SUM(pay_amount), 0)
+        FROM oms_order
+        WHERE DATE(create_time) = DATE(#{yesterday})
+        AND delete_status = 0
+        AND status IN (1, 2, 3) <!-- 已支付的订单 -->
+    </select>
+    
+    <!-- 获取今日订单数 -->
+    <select id="getTodayOrderCount" resultType="java.lang.Integer">
+        SELECT COUNT(*)
+        FROM oms_order
+        WHERE DATE(create_time) = DATE(#{today})
+        AND delete_status = 0
+    </select>
+    
+    <!-- 获取昨日订单数 -->
+    <select id="getYesterdayOrderCount" resultType="java.lang.Integer">
+        SELECT COUNT(*)
+        FROM oms_order
+        WHERE DATE(create_time) = DATE(#{yesterday})
+        AND delete_status = 0
+    </select>
+    
+    <!-- 获取今日新增用户数 -->
+    <select id="getTodayNewUserCount" resultType="java.lang.Integer">
+        SELECT COUNT(*)
+        FROM ums_member
+        WHERE DATE(create_time) = DATE(#{today})
+    </select>
+    
+    <!-- 获取昨日新增用户数 -->
+    <select id="getYesterdayNewUserCount" resultType="java.lang.Integer">
+        SELECT COUNT(*)
+        FROM ums_member
+        WHERE DATE(create_time) = DATE(#{yesterday})
+    </select>
+    
+    <!-- 获取今日访问量 -->
+    <select id="getTodayVisitCount" resultType="java.lang.Integer">
+        SELECT IFNULL(SUM(1), 0)
+        FROM ums_member_login_log
+        WHERE DATE(create_time) = DATE(#{today})
+    </select>
+    
+    <!-- 获取昨日访问量 -->
+    <select id="getYesterdayVisitCount" resultType="java.lang.Integer">
+        SELECT IFNULL(SUM(1), 0)
+        FROM ums_member_login_log
+        WHERE DATE(create_time) = DATE(#{yesterday})
+    </select>
+    
+    <!-- 获取销售额趋势 -->
+    <select id="getSalesTrend" resultType="java.util.Map">
+        SELECT 
+            DATE_FORMAT(create_time, '%Y-%m-%d') as date,
+            IFNULL(SUM(pay_amount), 0) as value
+        FROM oms_order
+        WHERE create_time BETWEEN #{startDate} AND #{endDate}
+        AND delete_status = 0
+        AND status IN (1, 2, 3) <!-- 已支付的订单 -->
+        GROUP BY DATE_FORMAT(create_time, '%Y-%m-%d')
+        ORDER BY date
+    </select>
+    
+    <!-- 获取订单数趋势 -->
+    <select id="getOrderCountTrend" resultType="java.util.Map">
+        SELECT 
+            DATE_FORMAT(create_time, '%Y-%m-%d') as date,
+            COUNT(*) as value
+        FROM oms_order
+        WHERE create_time BETWEEN #{startDate} AND #{endDate}
+        AND delete_status = 0
+        GROUP BY DATE_FORMAT(create_time, '%Y-%m-%d')
+        ORDER BY date
+    </select>
+    
+    <!-- 获取转化漏斗数据 -->
+    <select id="getFunnelData" resultType="java.util.Map">
+        <!-- 浏览商品数据 - 使用会员统计信息表中的page_view字段 -->
+        SELECT 
+            '浏览商品' as name,
+            IFNULL(SUM(page_view), 0) as value
+        FROM ums_member_statistics_info
+        WHERE record_date BETWEEN #{startDate} AND #{endDate}
+        
+        UNION ALL
+        
+        <!-- 加入购物车数据 - 使用购物车记录 -->
+        SELECT 
+            '加入购物车' as name,
+            COUNT(DISTINCT member_id) as value
+        FROM oms_cart_item
+        WHERE create_date BETWEEN #{startDate} AND #{endDate}
+        
+        UNION ALL
+        
+        <!-- 下单数据 - 使用订单记录 -->
+        SELECT 
+            '下单' as name,
+            COUNT(DISTINCT member_id) as value
+        FROM oms_order
+        WHERE create_time BETWEEN #{startDate} AND #{endDate}
+        AND delete_status = 0
+        
+        UNION ALL
+        
+        <!-- 支付数据 - 使用已支付订单(pay_type为1或2表示已支付) -->
+        SELECT 
+            '支付' as name,
+            COUNT(DISTINCT member_id) as value
+        FROM oms_order
+        WHERE create_time BETWEEN #{startDate} AND #{endDate}
+        AND delete_status = 0
+        AND pay_type IN (1, 2)
+    </select>
+    
+    <!-- 获取待处理事项数据 -->
+    <select id="getPendingTasks" resultType="java.util.Map">
+        SELECT 
+            (SELECT COUNT(*) FROM oms_order WHERE status = 1 AND delete_status = 0) as pendingShipment,
+            (SELECT COUNT(*) FROM oms_order_return_apply WHERE status = 0) as pendingRefund
+    </select>
+</mapper> 

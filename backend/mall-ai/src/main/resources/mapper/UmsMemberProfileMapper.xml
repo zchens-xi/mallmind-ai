@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.macro.mall.service.dao.UmsMemberProfileDao">
+    <resultMap id="BaseResultMap" type="com.macro.mall.model.UmsMemberProfile">
+        <id column="id" property="id" jdbcType="BIGINT"/>
+        <result column="member_id" property="memberId" jdbcType="BIGINT"/>
+        <result column="nickname" property="nickname" jdbcType="VARCHAR"/>
+        <result column="birthday" property="birthday" jdbcType="DATE"/>
+        <result column="gender" property="gender" jdbcType="INTEGER"/>
+        <result column="avatar" property="avatar" jdbcType="VARCHAR"/>
+        <result column="city" property="city" jdbcType="VARCHAR"/>
+        <result column="job" property="job" jdbcType="VARCHAR"/>
+        <result column="personalized_signature" property="personalizedSignature" jdbcType="VARCHAR"/>
+        <result column="source_type" property="sourceType" jdbcType="INTEGER"/>
+    </resultMap>
+
+    <select id="listAll" resultMap="BaseResultMap">
+        SELECT * FROM ums_member_profile
+    </select>
+
+    <select id="getByMemberId" resultMap="BaseResultMap">
+        SELECT * FROM ums_member_profile
+        WHERE member_id = #{memberId}
+    </select>
+
+    <insert id="insert" parameterType="com.macro.mall.model.UmsMemberProfile">
+        INSERT INTO ums_member_profile
+        (member_id, nickname, birthday, gender,
+         avatar, city, job, personalized_signature, source_type)
+        VALUES
+            (#{memberId}, #{nickname}, #{birthday}, #{gender},
+             #{avatar}, #{city}, #{job}, #{personalizedSignature}, #{sourceType})
+    </insert>
+
+    <update id="update" parameterType="com.macro.mall.model.UmsMemberProfile">
+        UPDATE ums_member_profile
+        SET nickname = #{nickname},
+            birthday = #{birthday},
+            gender = #{gender},
+            avatar = #{avatar},
+            city = #{city},
+            job = #{job},
+            personalized_signature = #{personalizedSignature},
+            source_type = #{sourceType}
+        WHERE member_id = #{memberId}
+    </update>
+
+    <delete id="delete" parameterType="java.lang.Long">
+        DELETE FROM ums_member_profile WHERE member_id = #{memberId}
+    </delete>
+</mapper>

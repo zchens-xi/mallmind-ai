@@ -1,0 +1,16 @@
+spring:
+  data:
+    mongodb:
+      uri: mongodb://localhost:27017/mall_ai_test
+      database: mall_ai_test
+
+logging:
+  level:
+    org.springframework.data.mongodb: DEBUG
+    com.macro.mall.ai: DEBUG
+    root: INFO
+
+# 测试环境禁用一些不必要的自动配置
+spring.autoconfigure.exclude:
+  - org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration
+

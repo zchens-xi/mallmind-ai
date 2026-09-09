@@ -1,0 +1,253 @@
+[
+  {
+    "test_name": "健康检查",
+    "success": false,
+    "timestamp": "2025-07-17T16:26:31.842281",
+    "response_data": null,
+    "error": "500 Server Error: INTERNAL SERVER ERROR for url: http://localhost:8090/health"
+  },
+  {
+    "test_name": "系统统计",
+    "success": false,
+    "timestamp": "2025-07-17T16:26:34.400291",
+    "response_data": null,
+    "error": "500 Server Error: INTERNAL SERVER ERROR for url: http://localhost:8090/system/stats"
+  },
+  {
+    "test_name": "点击处理",
+    "success": true,
+    "timestamp": "2025-07-17T16:26:36.946806",
+    "response_data": {
+      "click_processed": true,
+      "momentum_summary": {
+        "cache_status": "active",
+        "data_points": 0.0,
+        "last_updated": "2025-07-17T16:26:36.945802",
+        "price_preference": {
+          "mean": 122.8056176,
+          "range": "[32.0, 213.7]"
+        },
+        "quality_preference": {
+          "mean": 4.076639999999999,
+          "preferred_range": "4.1±1.3"
+        },
+        "top_categories": [
+          [
+            "electronics",
+            0.169931936388277
+          ],
+          [
+            "books",
+            0.1430000617627363
+          ],
+          [
+            "clothing",
+            0.13759697064653875
+          ]
+        ],
+        "type": "short_term",
+        "user_id": 12345.0
+      },
+      "user_id": 12345
+    },
+    "error": null
+  },
+  {
+    "test_name": "基础推荐",
+    "success": true,
+    "timestamp": "2025-07-17T16:26:39.497339",
+    "response_data": {
+      "algorithm": "basic_momentum",
+      "recommendations": [
+        {
+          "category": "electronics",
+          "price": 199.99,
+          "product_id": "prod_1",
+          "rating": 4.2,
+          "recommendation_score": 0.3349659681941385,
+          "stock": 10
+        },
+        {
+          "category": "books",
+          "price": 29.99,
+          "product_id": "prod_3",
+          "rating": 4.8,
+          "recommendation_score": 0.32150003088136814,
+          "stock": 20
+        },
+        {
+          "category": "electronics",
+          "price": 299.99,
+          "product_id": "prod_2",
+          "rating": 4.5,
+          "recommendation_score": 0.2679727745553108,
+          "stock": 5
+        }
+      ],
+      "returned_count": 3,
+      "total_candidates": 3,
+      "user_id": 12345
+    },
+    "error": null
+  },
+  {
+    "test_name": "三动量推荐",
+    "success": true,
+    "timestamp": "2025-07-17T16:26:42.043971",
+    "response_data": {
+      "algorithm": "three_momentum_system",
+      "clicked_product_processed": true,
+      "recommendations": [
+        {
+          "brand": "",
+          "category": "electronics",
+          "confidence": 0.8,
+          "isNew": false,
+          "name": "",
+          "price": 399.99,
+          "productId": "prod_4",
+          "rating": 4.7,
+          "reason": "Based on your preferences",
+          "recommendationScore": 0.34119975820402937,
+          "stock": 8
+        },
+        {
+          "brand": "",
+          "category": "clothing",
+          "confidence": 0.8,
+          "isNew": false,
+          "name": "",
+          "price": 89.99,
+          "productId": "prod_5",
+          "rating": 4.3,
+          "reason": "Based on your preferences",
+          "recommendationScore": 0.3180823008568281,
+          "stock": 15
+        }
+      ],
+      "returned_count": 2,
+      "total_candidates": 2,
+      "user_id": 12345
+    },
+    "error": null
+  },
+  {
+    "test_name": "动量摘要",
+    "success": true,
+    "timestamp": "2025-07-17T16:26:44.594345",
+    "response_data": {
+      "cache_status": "active",
+      "data_points": 0,
+      "last_updated": "2025-07-17T16:26:42.041967",
+      "price_preference": {
+        "mean": 134.38377496,
+        "range": "[39.0, 229.8]"
+      },
+      "quality_preference": {
+        "mean": 4.100508799999999,
+        "preferred_range": "4.1±1.3"
+      },
+      "top_categories": [
+        [
+          "electronics",
+          0.18239951640805874
+        ],
+        [
+          "books",
+          0.13690230260140723
+        ],
+        [
+          "clothing",
+          0.13616460171365624
+        ]
+      ],
+      "type": "long_term",
+      "user_id": 12345
+    },
+    "error": null
+  },
+  {
+    "test_name": "动量解释",
+    "success": true,
+    "timestamp": "2025-07-17T16:26:47.147618",
+    "response_data": {
+      "current_momentum_type": "push_momentum",
+      "momentum_explanation": {
+        "含义": "用户偏好分布的累积状态，会保留历史点击的累积影响",
+        "当前价格偏好中心": 134.38377496,
+        "当前类型偏好分布": {
+          "beauty": 0.13612908385276531,
+          "books": 0.13690230260140723,
+          "clothing": 0.13616460171365624,
+          "electronics": 0.18239951640805874,
+          "food": 0.13612908385276531,
+          "home": 0.13614632771858198,
+          "sports": 0.13612908385276531
+        },
+        "当前质量偏好中心": 4.100508799999999,
+        "最新更新": "2025-07-17T16:26:42.041967",
+        "最新点击影响": {
+          "影响强度": 1.0,
+          "点击价格": 249.99,
+          "点击类别": "electronics",
+          "点击评分": 4.6
+        },
+        "本质": "与长期、短期动量同构的偏好分布数据",
+        "类型": "推送动量（累积偏好分布）⭐",
+        "累积点击次数": 2
+      },
+      "momentum_formula": "推送动量 += 长期动量（稳定基准）+ 短期动量（变化方向）",
+      "system_flow": [
+        "1. 推送动量 = 用户偏好分布的累积状态",
+        "2. 用户点击 → 生成短期偏好变化增量",
+        "3. 获取长期偏好分布基准",
+        "4. 🔄 推送偏好分布 += 长期偏好基准 + 短期偏好增量",
+        "5. 对于价格/质量：累积调整正态分布参数",
+        "6. 对于类型：累积提升点击类型权重",
+        "7. 使用更新后的推送偏好分布进行推荐",
+        "📊 当前累积了 2 次点击的影响"
+      ],
+      "system_principles": {
+        "三种动量本质": "都是用户在各条件/标签下的偏好分布，数据结构完全一致",
+        "公式核心": "推送偏好分布 += 长期偏好基准 + 短期偏好增量",
+        "推送动量": "累积的偏好分布状态，会保留历史点击累积影响 ✅",
+        "短期动量": "每次点击的偏好变化增量",
+        "累积机制": "每次点击都会在推送偏好分布基础上累积更新",
+        "长期动量": "稳定的用户偏好分布基准"
+      },
+      "user_id": 12345
+    },
+    "error": null
+  },
+  {
+    "test_name": "配置查看",
+    "success": true,
+    "timestamp": "2025-07-17T16:26:49.703447",
+    "response_data": {
+      "behavior_weights": {
+        "cart": 2.0,
+        "click": 1.0,
+        "purchase": 4.0,
+        "return": -2.0,
+        "view": 0.5
+      },
+      "momentum_decay": 0.8,
+      "push_momentum_config": {
+        "category_boost_factor": 1.2,
+        "price_std_multiplier": 1.0,
+        "quality_std_multiplier": 1.0
+      },
+      "softmax_temperature": 1.0
+    },
+    "error": null
+  },
+  {
+    "test_name": "配置更新",
+    "success": true,
+    "timestamp": "2025-07-17T16:26:51.739037",
+    "response_data": {
+      "message": "Configuration updated successfully"
+    },
+    "error": null
+  }
+]
