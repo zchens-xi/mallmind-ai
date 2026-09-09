@@ -47,7 +47,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          cat .upload/chunk-* > /tmp/mall-ai-overlays.b64
+          cat .payload/chunk-* > /tmp/mall-ai-overlays.b64
           base64 -d /tmp/mall-ai-overlays.b64 > /tmp/mall-ai-overlays.tar.xz
           tar -xJf /tmp/mall-ai-overlays.tar.xz -C .
 
@@ -55,7 +55,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          rm -rf .upload
+          rm -rf .payload .upload
           rm -f UPLOAD_STATUS
           rm -f .github/workflows/import-source.yml
           git config user.name 'github-actions[bot]'
