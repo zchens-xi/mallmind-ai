@@ -1,11 +1,25 @@
-# mall-ai
+# MallMind AI
 
-Course project integrating an e-commerce backend, admin analytics frontend, and mobile storefront.
+MallMind AI 是一个融合智能推荐、AI 客服和数据分析的电商系统。项目包含商城后端、运营管理端与移动商城端。
 
-## Structure
+## 核心功能
 
-- `backend/` — Spring Boot / MyBatis mall backend with the added `mall-ai` recommendation and data-analysis module.
-- `admin-web/` — Vue admin console with analytics/data-analysis pages.
-- `app-web/` — uni-app mobile storefront.
+- 基于用户行为和商品数据的智能推荐
+- AI 客服与多轮会话
+- 销售、商品、用户和用户画像分析
+- 商品、订单、会员和营销管理
+- 移动端商品浏览、购物车、下单与售后流程
 
-The project is based on the open-source `macrozheng/mall`, `macrozheng/mall-admin-web`, and `macrozheng/mall-app-web` projects (Apache-2.0). Project-specific source code and modifications are included here. Credentials and private deployment endpoints have been removed or replaced with environment-variable placeholders before publication.
+## 项目结构
+
+- `backend/`：Spring Boot / MyBatis 后端及 `mall-ai` 智能服务模块
+- `admin-web/`：Vue 运营管理与数据分析端
+- `app-web/`：uni-app 移动商城端
+
+## 运行配置
+
+数据库、邮件服务和 AI 服务等敏感配置通过环境变量注入。运行前请根据各子项目的配置文件设置所需环境变量。
+
+## 许可说明
+
+项目中保留的第三方代码及素材依其各自许可证使用，详见各目录内的 `LICENSE` 文件。
