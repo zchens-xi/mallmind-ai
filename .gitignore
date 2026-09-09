@@ -1,0 +1,9 @@
+# Build outputs
+**/target/
+**/node_modules/
+**/dist/
+**/.idea/
+**/.vscode/
+*.log
+.env
+.env.*
